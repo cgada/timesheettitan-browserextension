@@ -2,11 +2,15 @@
 
 <html>
 <head>
-    <title>Timesheet Titan Options</title>
 
-    <link rel="stylesheet" type="text/css" href="styles/titan-extension.css"/>
+  <title>Timesheet Titan Options</title>
 
-    <script type="text/javascript" src="src/titan-extension-options.js"></script>
+  <link rel="stylesheet" type="text/css" href="styles/titan-extension.css"/>
+
+  <script type="text/javascript" src="src/http.js"></script>
+  <script type="text/javascript" src="src/utils.js"></script>
+  <script type="text/javascript" src="src/titan-extension-options.js"></script>
+
 </head>
 <body>
 
@@ -16,16 +20,14 @@
 <div id="login">
   <label for="username">Username</label>
   <input type="text" id="username">
-  <br>
   <label for="password">Password</label>
   <input type="text" id="username">
-  <br>
-  <button id="login_button">Log In</button>
+  <button id="loginButton">Log In</button>
 </div>
 
-<div id="user_info">
-  <div id="logged_in_as"></div>
-  <div><button id="logout_button">Log Out</button></div>
+<div id="userInfo">
+  <div id="loggedInAs"></div>
+  <div><button id="logoutButton">Log Out</button></div>
 </div>
 
 </body>

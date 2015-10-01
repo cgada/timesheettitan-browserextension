@@ -3,19 +3,18 @@ function getActiveTasks(callback) {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-  var startTaskButton = document.getElementById('start_task');
-  var stopTaskButton = document.getElementById('stop_task');
+  var doc = utils.initElements(['stopTaskButton', 'startTaskButton']);
 
   function setupNoActiveTasksState() {
     chrome.browserAction.setIcon({ path: 'assets/titan-inactive.png' });
-    stopTaskButton.style.display = 'none';
-    startTaskButton.style.display = 'block';
+    doc.stopTaskButton.style.display = 'none';
+    doc.startTaskButton.style.display = 'block';
   }
 
   function setupActiveTasksState() {
     chrome.browserAction.setIcon({ path: 'assets/titan-active.png' });
-    stopTaskButton.style.display = 'block';
-    startTaskButton.style.display = 'none';
+    doc.stopTaskButton.style.display = 'block';
+    doc.startTaskButton.style.display = 'none';
   }
 
   getActiveTasks(function(tasks) {
@@ -26,6 +25,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
 
-  startTaskButton.addEventListener('click', setupActiveTasksState);
-  stopTaskButton.addEventListener('click', setupNoActiveTasksState);
+  doc.startTaskButton.addEventListener('click', setupActiveTasksState);
+  doc.stopTaskButton.addEventListener('click', setupNoActiveTasksState);
 });

@@ -1,3 +1,4 @@
 document.addEventListener('DOMContentLoaded', function() {
-  document.getElementById('user_info').style.display = 'none';
+  var doc = utils.initElements('userInfo');
+  doc.userInfo.style.display = 'none';
 });
