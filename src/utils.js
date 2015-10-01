@@ -12,7 +12,17 @@ window.utils = (function() {
     return elements;
   }
 
+  function showElement(element) {
+    element.style.display = 'block';
+  }
+
+  function hideElement(element) {
+    element.style.display = 'none';
+  }
+
   return {
-    initElements: initElements
+    initElements: initElements,
+    showElement: showElement,
+    hideElement: hideElement
   };
 })();

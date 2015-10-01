@@ -12,6 +12,7 @@
     "default_title": "Timesheet Titan"
   },
   "permissions": [
-    "activeTab"
+    "activeTab",
+    "storage"
   ]
 }
