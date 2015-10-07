@@ -1,17 +1,50 @@
 window.http = (function() {
-  return {
-    get: function(url, callback) {
-      var req = new XMLHttpRequest();
-      req.addEventListener('load', function(res) {
-        var raw = res.target.response;
-        if(raw) {
-          callback(JSON.parse(raw))
+  var apiBase = 'http://localhost:8000';
+
+  var interceptors = [];
+
+  function applyInterceptors(req) {
+    for(var i = 0; i < interceptors.length; i++) {
+      interceptors[i](req);
+    }
+  }
+
+  function getRequestHandler(req, callbacks) {
+    return function() {
+      if(req.readystate === 4) {
+        var res = JSON.parse(req.responseText || '{"message": "Empty response!"}');
+        if(200 <= req.status && req.status < 300) {
+          callbacks.success(res);
         } else {
-          callback(null);
+          callbacks.error(res)
         }
-      });
-      req.open('GET', url);
+      }
+    };
+  }
+
+  return {
+    get: function(url, callbacks) {
+      var req = new XMLHttpRequest();
+      req.onreadystatechange = getRequestHandler(req, callbacks);
+      req.open('GET', apiBase + url);
       req.send();
+    },
+    post: function(url, data, callbacks) {
+      var req = new XMLHttpRequest();
+      req.onreadystatechange = getRequestHandler(req, callbacks);
+      req.open('POST', apiBase + url);
+      req.send(JSON.stringify(data));
+    },
+    addInterceptor: function(interceptor) {
+      if(interceptors.indexOf(interceptor) === -1) {
+        interceptors.push(interceptor);
+      }
+    },
+    removeInterceptor: function(interceptor) {
+      var index = interceptors.indexOf(interceptor);
+      if(index !== -1) {
+        interceptors.splice(index, 1);
+      }
     }
   }
 })();
