@@ -6,7 +6,8 @@ document.addEventListener('DOMContentLoaded', function() {
     'logoutButton',
     'usernameInput',
     'passwordInput',
-    'loggedInAs'
+    'loggedInAs',
+    'errorDiv'
   ]);
 
   function onUserData(user) {
@@ -14,6 +15,9 @@ document.addEventListener('DOMContentLoaded', function() {
       doc.loggedInAs.innerText = 'Logged in as ' + user.username;
       utils.hideElement(doc.loginForm);
       utils.showElement(doc.userInfo);
+      doc.usernameInput.value = null;
+      doc.passwordInput.value = null;
+      errorDiv.innerText = '';
     } else {
       utils.hideElement(doc.userInfo);
       utils.showElement(doc.loginForm);
@@ -25,17 +29,35 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 
   doc.loginButton.addEventListener('click', function() {
+    doc.loginButton.disabled = true;
+    errorDiv.innerText = '';
+
     titan.login({
       username: doc.usernameInput.value,
       password: doc.passwordInput.value
     }, {
-      success: onUserData
+      success: onUserData,
+      error: function(data) {
+        errorDiv.innerText = data.error_message;
+      },
+      complete: function() {
+        doc.loginButton.disabled = false;
+      }
     });
   })
 
   doc.logoutButton.addEventListener('click', function() {
+    doc.logoutButton.disabled = true;
+    errorDiv.innerText = '';
+
     titan.logout({
-      success: onUserData
+      success: onUserData,
+      error: function(data) {
+        errorDiv.innerText = data.error_message;
+      },
+      complete: function() {
+        doc.logoutButton.disabled = false;
+      }
     });
   });
 });

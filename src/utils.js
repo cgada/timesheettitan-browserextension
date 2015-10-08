@@ -20,9 +20,14 @@ window.utils = (function() {
     element.style.display = 'none';
   }
 
+  function noop() {
+
+  }
+
   return {
     initElements: initElements,
     showElement: showElement,
-    hideElement: hideElement
+    hideElement: hideElement,
+    noop: noop
   };
 })();

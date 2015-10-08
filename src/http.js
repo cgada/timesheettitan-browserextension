@@ -1,6 +1,4 @@
 window.http = (function() {
-  var apiBase = 'http://localhost:8000';
-
   var interceptors = [];
 
   function applyInterceptors(req) {
@@ -11,29 +9,32 @@ window.http = (function() {
 
   function getRequestHandler(req, callbacks) {
     return function() {
-      if(req.readystate === 4) {
+      if(req.readyState === 4) {
         var res = JSON.parse(req.responseText || '{"message": "Empty response!"}');
         if(200 <= req.status && req.status < 300) {
           callbacks.success(res);
         } else {
           callbacks.error(res)
         }
+        callbacks.complete(res);
       }
     };
   }
 
+  function openRequest(method, url, callbacks) {
+    var req = new XMLHttpRequest();
+    req.onreadystatechange = getRequestHandler(req, callbacks);
+    req.open(method, url);
+    applyInterceptors(req);
+    return req;
+  }
+
   return {
     get: function(url, callbacks) {
-      var req = new XMLHttpRequest();
-      req.onreadystatechange = getRequestHandler(req, callbacks);
-      req.open('GET', apiBase + url);
-      req.send();
+      openRequest('GET', url, callbacks).send();
     },
     post: function(url, data, callbacks) {
-      var req = new XMLHttpRequest();
-      req.onreadystatechange = getRequestHandler(req, callbacks);
-      req.open('POST', apiBase + url);
-      req.send(JSON.stringify(data));
+      openRequest('POST', url, callbacks).send(JSON.stringify(data));
     },
     addInterceptor: function(interceptor) {
       if(interceptors.indexOf(interceptor) === -1) {
