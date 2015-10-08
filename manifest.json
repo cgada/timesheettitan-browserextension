@@ -4,12 +4,15 @@
   "name": "Timesheet Titan",
   "description": "An extension for Timesheet Titan that supports time-logging",
   "version": "0.0.0",
+  "options_page": "options.html",
 
   "browser_action": {
-	"default_popup": "titan-extension.html",
+    "default_icon": "assets/titan-inactive.png",
+    "default_popup": "titan-extension.html",
     "default_title": "Timesheet Titan"
   },
   "permissions": [
-    "activeTab"
+    "activeTab",
+    "storage"
   ]
 }
