@@ -1,3 +1,7 @@
 #errorDiv {
   color: red;
 }
+
+body {
+  width: 400px;
+}

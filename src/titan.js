@@ -57,7 +57,8 @@ window.titan = (function() {
 
   function getCurrentUser(callbacks) {
     if(currentLogin) {
-      return currentLogin;
+      callbacks.success(login);
+      return;
     }
 
     chrome.storage.sync.get(getEmptyStoreData(), function(login) {
@@ -74,9 +75,27 @@ window.titan = (function() {
     });
   }
 
+  function getProjects(userId, callbacks) {
+    http.get(apiBase + '/users/' + userId + '/projects', {
+      success: callbacks.success || utils.noop,
+      error: callbacks.error || utils.noop,
+      complete: callbacks.complete || utils.noop
+    });
+  }
+
+  function getTasks(projectId, callbacks) {
+    http.get(apiBase + '/projects/' + projectId + '/tasks', {
+      success: callbacks.success || utils.noop,
+      error: callbacks.error || utils.noop,
+      complete: callbacks.complete || utils.noop
+    });
+  }
+
   return {
     login: login,
     logout: logout,
-    getCurrentUser: getCurrentUser
+    getCurrentUser: getCurrentUser,
+    getTasks: getTasks,
+    getProjects: getProjects
   }
 })();

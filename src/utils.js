@@ -3,12 +3,15 @@ window.utils = (function() {
     ids = Array.isArray(ids) ? ids : [ids];
 
     var elements = {};
+    var __list = [];
 
     for(var i = 0; i < ids.length; i++) {
       var id = ids[i];
       elements[id] = document.getElementById(id);
+      __list.push(elements[id]);
     }
 
+    elements.__list = __list;
     return elements;
   }
 
@@ -20,6 +23,18 @@ window.utils = (function() {
     element.style.display = 'none';
   }
 
+  function showElements(elements) {
+    elements.forEach(function(element) {
+      showElement(element);
+    });
+  }
+
+  function hideElements(elements) {
+    elements.forEach(function(element) {
+      hideElement(element);
+    });
+  }
+
   function noop() {
 
   }
@@ -28,6 +43,8 @@ window.utils = (function() {
     initElements: initElements,
     showElement: showElement,
     hideElement: hideElement,
+    showElements: showElements,
+    hideElements: hideElements,
     noop: noop
   };
 })();

@@ -3,20 +3,39 @@
 <html>
 <head>
 
-    <title>Timesheet Titan</title>
+  <title>Timesheet Titan</title>
 
-    <link rel="stylesheet" type="text/css" href="styles/titan-extension.css"/>
+  <link rel="stylesheet" type="text/css" href="styles/titan-extension.css"/>
 
-    <script type="text/javascript" src="src/utils.js"></script>
-    <script type="text/javascript" src="src/titan-extension.js"></script>
+  <script type="text/javascript" src="src/http.js"></script>
+  <script type="text/javascript" src="src/utils.js"></script>
+  <script type="text/javascript" src="src/titan.js"></script>
 
 </head>
 <body>
 
-<h1>Timesheet Titan</h1>
+  <h1>Timesheet Titan</h1>
 
-<button id="startTaskButton">Start Task</button>
-<button id="stopTaskButton">Stop Task</button>
+  <div id="notLoggedInContainer">
+    <a href="#" id="loginLink">Please click here to log in</a>
+  </div>
+
+  <div id="loggedInAs">
+    <div id="loggedInInfo"></div>
+    <a href="#" id="manageConnections">Manage Account Connection</a>
+  </div>
+
+  <div id="projectsContainer">
+    <h2>Projects</h2>
+    <ul id="projectsList"></ul>
+  </div>
+
+  <div id="taskContainer">
+    <button id="startTaskButton">Start Task</button>
+    <button id="stopTaskButton">Stop Task</button>
+  </div>
+
+  <script type="text/javascript" src="src/titan-extension.js"></script>
 
 </body>
 </html>
