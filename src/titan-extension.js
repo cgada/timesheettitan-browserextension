@@ -113,24 +113,27 @@ document.addEventListener('DOMContentLoaded', function() {
       return pad(hours, 2) + ':' + pad(minutes, 2) + ':' + pad(seconds, 2);
     }
 
-    // var countInterval;
+    function now() {
+      return Date.now() - 4 * 60 * 60 * 1000; //TODO: figure out timezones
+    }
 
-    // var doCount = function() {
-    //   var startDate = session.start_time ? new Date(session.start_time).getTime() : Date.now();
-    //   var now = Date.now() - 4 * 60 * 60 * 1000; //TODO: figure out time zones
-    //   doc.countInfo.innerText = formatTime(now - startDate);
-    // };
+    var countInterval;
+
+    var doCount = function(startDate) {
+      doc.countInfo.innerText = formatTime(now() - startDate);
+    };
 
     var setupNoActiveTasksState = function() {
-      // doc.countInfo.innerText = '00:00:00';
+      doc.countInfo.innerText = '00:00:00';
       chrome.browserAction.setIcon({ path: 'assets/titan-inactive.png' });
       doc.stopTaskButton.style.display = 'none';
       doc.startTaskButton.style.display = 'block';
     };
 
     var setupActiveTasksState = function() {
-      // doCount();
-      // countInterval = setInterval(doCount, 1000);
+      var startDate = session.start_time ? new Date(session.start_time).getTime() : now();
+      doCount(startDate);
+      countInterval = setInterval(function() { doCount(startDate) }, 1000);
       chrome.browserAction.setIcon({ path: 'assets/titan-active.png' });
       doc.stopTaskButton.style.display = 'block';
       doc.startTaskButton.style.display = 'none';
@@ -142,16 +145,16 @@ document.addEventListener('DOMContentLoaded', function() {
       setupNoActiveTasksState();
     }
 
-    doc.startTaskButton.addEventListener('click', function() {
+    doc.startTaskButton.onclick = function() {
       titan.startTask(taskId, {
         success: function() {
           setupActiveTasksState();
         }
       });
-    });
+    };
 
-    doc.stopTaskButton.addEventListener('click', function() {
-      // if(countInterval) clearInterval(countInterval);
+    doc.stopTaskButton.onclick = function() {
+      if(countInterval) clearInterval(countInterval);
       titan.stopTask(taskId, {
         success: function() {
           titan.getCurrentUser({
@@ -162,6 +165,6 @@ document.addEventListener('DOMContentLoaded', function() {
           });
         }
       });
-    });
+    };
   }
 });
