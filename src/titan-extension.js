@@ -14,7 +14,7 @@ document.addEventListener('DOMContentLoaded', function() {
           success: function(data) {
             var session = data.objects[0];
             if(session) {
-              setupTask(session.task.resource_uri.substring(session.task.resource_uri.length - 1), session.task, true);
+              setupTask(session.task.resource_uri.substring(session.task.resource_uri.length - 1), session, true);
             } else {
               setupMainView(user);
             }
@@ -87,28 +87,54 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 
-  function setupTask(taskId, task, active) {
+  function setupTask(taskId, session, active) {
     active = active || false;
 
     utils.hideElements(mainDoc.__list);
 
     utils.showElement(mainDoc.taskContainer);
 
-    var doc = utils.initElements(['stopTaskButton', 'startTaskButton', 'taskInfo']);
+    var doc = utils.initElements(['stopTaskButton', 'startTaskButton', 'taskInfo', 'countInfo']);
 
-    doc.taskInfo.innerText = task.description;
+    doc.taskInfo.innerText = (session.task || session).description;
 
-    function setupNoActiveTasksState() {
+    function pad(num, width) {
+      num = num.toString();
+      while(num.length < width) num = '0' + num;
+      return num;
+    }
+
+    function formatTime(ms) {
+      var hours = Math.floor(ms / (60 * 60 * 1000));
+      ms -= hours * 60 * 60 * 1000;
+      var minutes = Math.floor(ms / (60 * 1000));
+      ms -= minutes * 60 * 1000;
+      var seconds = Math.floor(ms / 1000);
+      return pad(hours, 2) + ':' + pad(minutes, 2) + ':' + pad(seconds, 2);
+    }
+
+    // var countInterval;
+
+    // var doCount = function() {
+    //   var startDate = session.start_time ? new Date(session.start_time).getTime() : Date.now();
+    //   var now = Date.now() - 4 * 60 * 60 * 1000; //TODO: figure out time zones
+    //   doc.countInfo.innerText = formatTime(now - startDate);
+    // };
+
+    var setupNoActiveTasksState = function() {
+      // doc.countInfo.innerText = '00:00:00';
       chrome.browserAction.setIcon({ path: 'assets/titan-inactive.png' });
       doc.stopTaskButton.style.display = 'none';
       doc.startTaskButton.style.display = 'block';
-    }
+    };
 
-    function setupActiveTasksState() {
+    var setupActiveTasksState = function() {
+      // doCount();
+      // countInterval = setInterval(doCount, 1000);
       chrome.browserAction.setIcon({ path: 'assets/titan-active.png' });
       doc.stopTaskButton.style.display = 'block';
       doc.startTaskButton.style.display = 'none';
-    }
+    };
 
     if(active) {
       setupActiveTasksState();
@@ -125,6 +151,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     doc.stopTaskButton.addEventListener('click', function() {
+      // if(countInterval) clearInterval(countInterval);
       titan.stopTask(taskId, {
         success: function() {
           titan.getCurrentUser({
