@@ -36,6 +36,9 @@ window.http = (function() {
     post: function(url, data, callbacks) {
       openRequest('POST', url, callbacks).send(JSON.stringify(data));
     },
+    put: function(url, data, callbacks) {
+      openRequest('PUT', url, callbacks).send(JSON.stringify(data));
+    },
     addInterceptor: function(interceptor) {
       if(interceptors.indexOf(interceptor) === -1) {
         interceptors.push(interceptor);

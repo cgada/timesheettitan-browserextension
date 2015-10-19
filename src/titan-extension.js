@@ -10,7 +10,16 @@ document.addEventListener('DOMContentLoaded', function() {
   titan.getCurrentUser({
     success: function(user) {
       if(user) {
-        setupMainView(user);
+        titan.getActiveSessions(user.id, {
+          success: function(data) {
+            var session = data.objects[0];
+            if(session) {
+              setupTask(session.task.resource_uri.substring(session.task.resource_uri.length - 1), session.task, true);
+            } else {
+              setupMainView(user);
+            }
+          }
+        });
       } else {
         setupNotLoggedIn();
       }
@@ -18,6 +27,7 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 
   function setupMainView(user) {
+    utils.hideElements(mainDoc.__list);
     var doc = utils.initElements(['loggedInInfo', 'manageConnections']);
     utils.showElement(mainDoc.loggedInAs);
     doc.loggedInInfo.innerText = 'Logged in as ' + user.username;
@@ -37,12 +47,19 @@ document.addEventListener('DOMContentLoaded', function() {
 
     var doc = utils.initElements(['projectsList']);
 
+    while(doc.projectsList.hasChildNodes()) {
+      doc.projectsList.removeChild(doc.projectsList.lastChild);
+    }
+
     titan.getProjects(user.id, {
       success: function(data) {
         data.objects.forEach(function(project) {
+          var a = document.createElement('a');
+          a.innerText = project.name;
+          a.href = '#';
           var li = document.createElement('li');
-          li.innerHTML = '<a href="#">' + project.name + '</a>';
-          li.addEventListener('click', function(event) {
+          li.appendChild(a);
+          a.addEventListener('click', function(event) {
             event.preventDefault();
             setupTaskList(project.id, li);
             li.innerText = project.name;
@@ -56,13 +73,12 @@ document.addEventListener('DOMContentLoaded', function() {
   function setupTaskList(projectId, parentElement) {
     titan.getTasks(projectId, {
       success: function(data) {
-        console.log(data);
         var ul = document.createElement('ul');
         data.objects.forEach(function(task) {
           var li = document.createElement('li');
           li.innerHTML = '<a href="#">' + task.description + '</a>';
           li.addEventListener('click', function() {
-
+            setupTask(parseInt(task.resource_uri.substring(task.resource_uri.length - 1)), task);
           });
           ul.appendChild(li);
         });
@@ -71,8 +87,16 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 
-  function setupTask() {
-    var doc = utils.initElements(['stopTaskButton', 'startTaskButton']);
+  function setupTask(taskId, task, active) {
+    active = active || false;
+
+    utils.hideElements(mainDoc.__list);
+
+    utils.showElement(mainDoc.taskContainer);
+
+    var doc = utils.initElements(['stopTaskButton', 'startTaskButton', 'taskInfo']);
+
+    doc.taskInfo.innerText = task.description;
 
     function setupNoActiveTasksState() {
       chrome.browserAction.setIcon({ path: 'assets/titan-inactive.png' });
@@ -86,15 +110,31 @@ document.addEventListener('DOMContentLoaded', function() {
       doc.startTaskButton.style.display = 'none';
     }
 
-    titan.getTasks(0, function(tasks) {
-      if(tasks.length === 0) {
-        setupNoActiveTasksState();
-      } else {
-        setupActiveTasksState();
-      }
+    if(active) {
+      setupActiveTasksState();
+    } else {
+      setupNoActiveTasksState();
+    }
+
+    doc.startTaskButton.addEventListener('click', function() {
+      titan.startTask(taskId, {
+        success: function() {
+          setupActiveTasksState();
+        }
+      });
     });
 
-    doc.startTaskButton.addEventListener('click', setupActiveTasksState);
-    doc.stopTaskButton.addEventListener('click', setupNoActiveTasksState);
+    doc.stopTaskButton.addEventListener('click', function() {
+      titan.stopTask(taskId, {
+        success: function() {
+          titan.getCurrentUser({
+            success: function(user) {
+              setupNoActiveTasksState();
+              setupMainView(user);
+            }
+          });
+        }
+      });
+    });
   }
 });

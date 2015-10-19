@@ -27,9 +27,9 @@ window.titan = (function() {
 
   function login(data, callbacks) {
     http.post(apiBase + '/users/login', data, {
-      success: function(login) {
-        chrome.storage.sync.set(extractStoreData(login), function() {
-          currentLogin = login;
+      success: function(loginData) {
+        chrome.storage.sync.set(extractStoreData(loginData), function() {
+          currentLogin = loginData;
           http.addInterceptor(authInterceptor);
 
           (callbacks.success || utils.noop)(currentLogin);
@@ -57,38 +57,54 @@ window.titan = (function() {
 
   function getCurrentUser(callbacks) {
     if(currentLogin) {
-      callbacks.success(login);
+      callbacks.success(currentLogin);
       return;
     }
 
-    chrome.storage.sync.get(getEmptyStoreData(), function(login) {
+    chrome.storage.sync.get(getEmptyStoreData(), function(loginData) {
       callbacks.success = callbacks.success || utils.noop;
 
-      if(login.username && login.api_key && login.id) {
-        currentLogin = login;
+      if(loginData.username && loginData.api_key && loginData.id) {
+        currentLogin = loginData;
         http.addInterceptor(authInterceptor);
 
-        callbacks.success(login);
+        callbacks.success(loginData);
       } else {
         callbacks.success(null);
       }
     });
   }
 
-  function getProjects(userId, callbacks) {
-    http.get(apiBase + '/users/' + userId + '/projects', {
+  function extractCallbacks(callbacks) {
+    return {
       success: callbacks.success || utils.noop,
       error: callbacks.error || utils.noop,
       complete: callbacks.complete || utils.noop
-    });
+    };
+  }
+
+  function getActiveSessions(userId, callbacks) {
+    http.get(apiBase + '/users/' + userId + '/active_sessions', extractCallbacks(callbacks));
+  }
+
+  function getProjects(userId, callbacks) {
+    http.get(apiBase + '/users/' + userId + '/projects', extractCallbacks(callbacks));
   }
 
   function getTasks(projectId, callbacks) {
-    http.get(apiBase + '/projects/' + projectId + '/tasks', {
-      success: callbacks.success || utils.noop,
-      error: callbacks.error || utils.noop,
-      complete: callbacks.complete || utils.noop
-    });
+    http.get(apiBase + '/projects/' + projectId + '/tasks', extractCallbacks(callbacks));
+  }
+
+  function getTask(taskId, projectId, callbacks) {
+    http.get(apiBase + '/projects/' + projectId + '/tasks/' + taskId, extractCallbacks(callbacks));
+  }
+
+  function startTask(taskId, callbacks) {
+    http.post(apiBase + '/tasks/' + taskId + '/start', undefined, extractCallbacks(callbacks));
+  }
+
+  function stopTask(taskId, callbacks) {
+    http.put(apiBase + '/tasks/' + taskId + '/stop', undefined, extractCallbacks(callbacks));
   }
 
   return {
@@ -96,6 +112,9 @@ window.titan = (function() {
     logout: logout,
     getCurrentUser: getCurrentUser,
     getTasks: getTasks,
-    getProjects: getProjects
+    getProjects: getProjects,
+    startTask: startTask,
+    stopTask: stopTask,
+    getActiveSessions: getActiveSessions
   }
 })();
